@@ -13,7 +13,7 @@ static t_env *create_env(void)
 	env->params.af = AF_INET;
 	env->params.parsed_payload_size = 0;
 	env->params.min_port = 79;
-	env->params.max_port = 79;
+	env->params.max_port = 81;
 	env->params.num_threads = 1;
 	env->params.scan_timeout = 1000;
 	env->params.scan_max_retry = 5;
@@ -26,11 +26,9 @@ static t_env *create_env(void)
 	env->dst_sockaddrlen = 0;
 	env->count = 0;
 	env->running = 1;
-	env->max_hops = 30;
-	env->send_per_loop = 3;
-	env->sent_hops = 0;
 	env->number_diff_scans = 4;
-	env->scan_list[0] = SCAN_NULL;
+	ft_memset(env->scan_list, 0, sizeof(env->scan_list));
+	env->scan_list[0] = SCAN_SYN;
 	env->scan_list[1] = SCAN_NULL;
 	env->scan_list[2] = SCAN_ACK;
 	env->scan_list[3] = SCAN_FIN;
@@ -50,6 +48,8 @@ int main(int argc, char **argv)
 	parse_args(env, argc, argv);
 	resolve_host(env);
 	get_local_ip(env);
+	print_configuration(env);
+	env->start_time = get_time();
 	create_threads(env);
 	/*parse_args(env, argc, argv);
 	if (!env->dst_param)
@@ -69,5 +69,5 @@ int main(int argc, char **argv)
 			}
 		}
 	}
-	while (1);
+	print_result(env);
 }

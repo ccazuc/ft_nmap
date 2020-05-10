@@ -36,7 +36,6 @@ void resolve_host(t_env *env)
 	if (!(env->dst_subname = malloc(strlen(hent->h_name) + 1)))
 		ft_exit("Error, could not malloc dst_subname", EXIT_FAILURE);
 	strcpy(env->dst_subname, hent->h_name);
-	printf("%x\n", env->dst_bin->s_addr);
 }
 
 void get_local_ip(t_env *env)

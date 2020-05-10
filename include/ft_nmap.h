@@ -41,10 +41,19 @@ enum TcpSeq
 	XMAS_SEQ = 50,
 };
 
+enum ScanPort
+{
+	SYN_PORT = 35450,
+	NULL_PORT = 35460,
+	ACK_PORT = 35470,
+	FIN_PORT = 35480,
+	XMAS_PORT = 35490,
+};
+
 enum StateType
 {
 	STATE_CLOSED = 1,
-	STATE_OPEN = 2,
+	STATE_OPENED = 2,
 	STATE_FILTERED = 3,
 	STATE_UNFILTERED = 4,
 	STATE_OPEN_FILTERED = 5,
@@ -79,13 +88,11 @@ typedef struct s_env
 	uint32_t count;
 	uint16_t packet_len;
 	uint8_t running;
-	uint32_t max_hops;
-	uint32_t send_per_loop;
-	uint32_t sent_hops;
 	struct s_worker *threads;
 	uint8_t number_diff_scans;
 	uint8_t scan_list[SCAN_MAX];
 	uint16_t ports_per_thread;
+	size_t start_time;
 } t_env;
 
 typedef struct s_scan_datas
@@ -116,6 +123,10 @@ typedef struct s_worker
 	t_port_result *ports_result;
 	pthread_t thread;
 	uint8_t running;
+	fd_set read_set_tcp;
+	fd_set read_set_udp;
+	fd_set read_set_icmp;
+	struct timeval select_timeout;
 } t_worker;
 
 typedef struct s_icmp_packet
@@ -165,5 +176,7 @@ void forge_tcp_header(struct tcphdr *tcp_hdr, t_worker *worker, t_port_result *p
 void forge_ip_header(struct ip *ip_hdr, t_worker *worker);
 void get_local_ip(t_env *env);
 uint16_t build_tcp_checksum(t_tcp_packet *tcp_packet, t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas);
+void print_configuration(t_env *env);
+void print_result(t_env *env);
 
 #endif
