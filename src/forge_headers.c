@@ -19,6 +19,14 @@ void forge_tcp_hdr(struct tcphdr *tcp_hdr, t_worker *worker, t_port_result *port
 	tcp_hdr->window = htons(128);
 }
 
+void forge_udp_hdr(struct udphdr *udp_hdr, t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas)
+{
+	ft_memset(udp_hdr, 0, sizeof(*udp_hdr));
+	udp_hdr->source = htons(worker->env->params.host_port);
+	udp_hdr->dest = htons(port_result->port);
+	udp_hdr->len = htons(sizeof(*udp_hdr) + worker->env->params.payload_size);
+}
+
 void forge_ip_hdr(struct ip *ip_hdr, t_worker *worker)
 {
 	ip_hdr->ip_v = 4;
@@ -69,9 +77,33 @@ uint16_t build_tcp_checksum(t_tcp_packet *tcp_packet, t_worker *worker, t_port_r
 	return compute_checksum(checksum_datas, sizeof(pseudo_hdr) + sizeof(tcp_packet->tcp_hdr) + worker->env->params.payload_size);
 }
 
+uint16_t build_udp_checksum(t_udp_packet *udp_packet, t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas)
+{
+	t_udp_pseudo_hdr pseudo_hdr;
+	char *checksum_datas;
+
+	pseudo_hdr.src = worker->env->src_s_addr;
+	pseudo_hdr.dst = worker->env->dst_bin->s_addr;
+	pseudo_hdr.reserved = 0;
+	pseudo_hdr.prot = udp_packet->ip_hdr.ip_p;
+	pseudo_hdr.len = htons(sizeof(udp_packet->udp_hdr) + worker->env->params.payload_size);
+	if (!(checksum_datas = malloc(sizeof(pseudo_hdr) + sizeof(udp_packet->udp_hdr) + worker->env->params.payload_size)))
+		ft_exit("Error, could not malloc tcp header", EXIT_FAILURE);
+	memcpy(checksum_datas, &pseudo_hdr, sizeof(pseudo_hdr));
+	memcpy(checksum_datas + sizeof(pseudo_hdr), ((unsigned char*)udp_packet) + sizeof(udp_packet->ip_hdr), sizeof(udp_packet->udp_hdr) + worker->env->params.payload_size);
+	return compute_checksum(checksum_datas, sizeof(pseudo_hdr) + sizeof(udp_packet->udp_hdr) + worker->env->params.payload_size);
+}
+
 void build_tcp_packet(t_tcp_packet *tcp_packet, t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas)
 {
 	forge_ip_hdr(&tcp_packet->ip_hdr, worker);
 	forge_tcp_hdr(&tcp_packet->tcp_hdr, worker, port_result, scan_datas);
 	tcp_packet->ip_hdr.ip_p = IPPROTO_TCP;
+}
+
+void build_udp_packet(t_udp_packet *udp_packet, t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas)
+{
+	forge_ip_hdr(&udp_packet->ip_hdr, worker);
+	forge_udp_hdr(&udp_packet->udp_hdr, worker, port_result, scan_datas);
+	udp_packet->ip_hdr.ip_p = IPPROTO_UDP;
 }

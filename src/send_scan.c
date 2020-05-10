@@ -9,6 +9,15 @@ static void send_tcp_packet(t_tcp_packet *packet, t_worker *worker)
 	printf("sent %d to port %d\n", sent, ntohs(packet->tcp_hdr.dest));
 }
 
+static void send_udp_packet(t_udp_packet *packet, t_worker *worker)
+{
+	int sent;
+
+	if ((sent = sendto(worker->udp_socket, packet, sizeof(*packet) + worker->env->params.payload_size, 0, worker->env->dst_sockaddr, worker->env->dst_sockaddrlen)) == -1)
+		ft_exit("sento failed, exiting", EXIT_FAILURE);
+	printf("sent %d to port %d\n", sent, ntohs(packet->udp_hdr.dest));
+}
+
 static void send_syn_scan(t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas)
 {
 	t_tcp_packet packet;
@@ -77,9 +86,14 @@ static void send_xmas_scan(t_worker *worker, t_port_result *port_result, t_scan_
 
 static void send_udp_scan(t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas)
 {
-	(void)worker;
-	(void)port_result;
-	(void)scan_datas;
+	t_udp_packet packet;
+
+	build_udp_packet(&packet, worker, port_result, scan_datas);
+	packet.udp_hdr.source = htons(UDP_PORT);
+	packet.udp_hdr.check = build_udp_checksum(&packet, worker, port_result, scan_datas);
+	send_udp_packet(&packet, worker);
+	scan_datas->last_scan = get_time();
+	scan_datas->sent = 1;
 }
 
 void send_scan(t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas)
@@ -108,4 +122,5 @@ void send_scan(t_worker *worker, t_port_result *port_result, t_scan_datas *scan_
 	{
 		send_udp_scan(worker, port_result, scan_datas);
 	}
+	++scan_datas->retry;
 }

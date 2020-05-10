@@ -48,6 +48,7 @@ enum ScanPort
 	ACK_PORT = 35470,
 	FIN_PORT = 35480,
 	XMAS_PORT = 35490,
+	UDP_PORT = 35500,
 };
 
 enum StateType
@@ -129,11 +130,13 @@ typedef struct s_worker
 	struct timeval select_timeout;
 } t_worker;
 
-typedef struct s_icmp_packet
+typedef struct s_icmp_response_packet
 {
 	struct ip ip_hdr;
 	struct icmphdr icmp_hdr;
-} t_icmp_packet;
+	struct ip ip_hdr_encaps;
+	struct udphdr udp_hdr;
+} t_icmp_response_packet;
 
 typedef struct s_tcp_packet
 {
@@ -149,6 +152,15 @@ typedef struct s_tcp_pseudo_hdr
 	uint8_t prot;
 	uint16_t len;
 } t_tcp_pseudo_hdr;
+
+typedef struct s_udp_pseudo_hdr
+{
+	uint32_t src;
+	uint32_t dst;
+	uint8_t reserved;
+	uint8_t prot;
+	uint16_t len;
+} t_udp_pseudo_hdr;
 
 typedef struct s_udp_packet
 {
@@ -173,9 +185,12 @@ void create_sockets(t_worker *worker);
 void send_scan(t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas);
 void build_tcp_packet(t_tcp_packet *packet, t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas);
 void forge_tcp_header(struct tcphdr *tcp_hdr, t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas);
+void build_udp_packet(t_udp_packet *packet, t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas);
+void forge_udp_header(struct udphdr *udp_hdr, t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas);
 void forge_ip_header(struct ip *ip_hdr, t_worker *worker);
 void get_local_ip(t_env *env);
 uint16_t build_tcp_checksum(t_tcp_packet *tcp_packet, t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas);
+uint16_t build_udp_checksum(t_udp_packet *tcp_packet, t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas);
 void print_configuration(t_env *env);
 void print_result(t_env *env);
 

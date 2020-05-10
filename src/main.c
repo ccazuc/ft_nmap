@@ -12,8 +12,8 @@ static t_env *create_env(void)
 	env->params.protocol = IPPROTO_ICMP;
 	env->params.af = AF_INET;
 	env->params.parsed_payload_size = 0;
-	env->params.min_port = 79;
-	env->params.max_port = 81;
+	env->params.min_port = 53;
+	env->params.max_port = 53;
 	env->params.num_threads = 1;
 	env->params.scan_timeout = 1000;
 	env->params.scan_max_retry = 5;
@@ -26,9 +26,9 @@ static t_env *create_env(void)
 	env->dst_sockaddrlen = 0;
 	env->count = 0;
 	env->running = 1;
-	env->number_diff_scans = 4;
+	env->number_diff_scans = 1;
 	ft_memset(env->scan_list, 0, sizeof(env->scan_list));
-	env->scan_list[0] = SCAN_SYN;
+	env->scan_list[0] = SCAN_UDP;
 	env->scan_list[1] = SCAN_NULL;
 	env->scan_list[2] = SCAN_ACK;
 	env->scan_list[3] = SCAN_FIN;
