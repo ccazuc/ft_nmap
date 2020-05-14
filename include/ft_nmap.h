@@ -74,6 +74,7 @@ typedef struct s_params
 	size_t scan_timeout;
 	uint16_t scan_max_retry;
 	uint16_t host_port;
+	uint8_t parsed_scan;
 } t_params;
 
 typedef struct s_env
@@ -86,8 +87,6 @@ typedef struct s_env
 	struct sockaddr *dst_sockaddr;	// host sockaddr from getaddrinfo
 	uint16_t dst_sockaddrlen;	// len of sockaddr from getaddrinfo
 	uint32_t src_s_addr;		// src addr from getifaddrs
-	uint32_t count;
-	uint16_t packet_len;
 	uint8_t running;
 	struct s_worker *threads;
 	uint8_t number_diff_scans;
@@ -180,17 +179,16 @@ size_t get_time();
 void send_packet(t_env *env);
 void receive_packet(t_env *env);
 void create_threads(t_env *env);
-void print_version();
 void create_sockets(t_worker *worker);
 void send_scan(t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas);
-void build_tcp_packet(t_tcp_packet *packet, t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas);
-void forge_tcp_header(struct tcphdr *tcp_hdr, t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas);
-void build_udp_packet(t_udp_packet *packet, t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas);
-void forge_udp_header(struct udphdr *udp_hdr, t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas);
+void build_tcp_packet(t_tcp_packet *packet, t_worker *worker, t_port_result *port_result);
+void forge_tcp_header(struct tcphdr *tcp_hdr, t_worker *worker, t_port_result *port_result);
+void build_udp_packet(t_udp_packet *packet, t_worker *worker, t_port_result *port_result);
+void forge_udp_header(struct udphdr *udp_hdr, t_worker *worker, t_port_result *port_result);
 void forge_ip_header(struct ip *ip_hdr, t_worker *worker);
 void get_local_ip(t_env *env);
-uint16_t build_tcp_checksum(t_tcp_packet *tcp_packet, t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas);
-uint16_t build_udp_checksum(t_udp_packet *tcp_packet, t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas);
+uint16_t build_tcp_checksum(t_tcp_packet *tcp_packet, t_worker *worker);
+uint16_t build_udp_checksum(t_udp_packet *tcp_packet, t_worker *worker);
 void print_configuration(t_env *env);
 void print_result(t_env *env);
 

@@ -22,7 +22,7 @@ static void check_timeout_scans(t_worker *worker, t_port_result *port_result, t_
 				port_result->finished = 0;
 				scan_datas[i].sent = 0;
 			}
-			printf("%ld\n", (get_time() - scan_datas[i].last_scan) / 1000);
+			//printf("%ld\n", (get_time() - scan_datas[i].last_scan) / 1000);
 			continue;
 		}
 		//printf("set 0\n");
@@ -41,9 +41,9 @@ static void send_scans(t_worker *worker, t_port_result *port_result)
 	}
 }
 
-static void handle_syn_scan_tcp(t_worker *worker, t_tcp_packet *packet, t_scan_datas *scan_datas)
+static void handle_syn_scan_tcp(t_tcp_packet *packet, t_scan_datas *scan_datas)
 {
-	printf("received syn tcp\n");
+	//printf("received syn tcp\n");
 	if (packet->tcp_hdr.syn == 1 && packet->tcp_hdr.ack == 1)
 	{
 		scan_datas->state = STATE_OPENED;
@@ -55,9 +55,9 @@ static void handle_syn_scan_tcp(t_worker *worker, t_tcp_packet *packet, t_scan_d
 	scan_datas->finished = 1;
 }
 
-static void handle_syn_scan_icmp(t_worker *worker, t_icmp_response_packet *packet, t_scan_datas *scan_datas)
+static void handle_syn_scan_icmp(t_icmp_response_packet *packet, t_scan_datas *scan_datas)
 {
-	printf("received syn icmp\n");
+	//printf("received syn icmp\n");
 	if (packet->icmp_hdr.type == 3 && (packet->icmp_hdr.code == 1 || packet->icmp_hdr.code == 2 || packet->icmp_hdr.code == 3 || packet->icmp_hdr.code == 9 || packet->icmp_hdr.code == 10 || packet->icmp_hdr.code == 13))
 	{
 		scan_datas->state = STATE_FILTERED;
@@ -65,19 +65,19 @@ static void handle_syn_scan_icmp(t_worker *worker, t_icmp_response_packet *packe
 	}
 }
 
-static void handle_null_scan_tcp(t_worker *worker, t_tcp_packet *packet, t_scan_datas *scan_datas)
+static void handle_null_scan_tcp(t_tcp_packet *packet, t_scan_datas *scan_datas)
 {
 	if (packet->tcp_hdr.rst == 1 && packet->tcp_hdr.ack == 1)
 	{
 		scan_datas->state = STATE_CLOSED;
-		printf("received null\n");
+		//printf("received null\n");
 	}
 	scan_datas->finished = 1;
 }
 
-static void handle_null_scan_icmp(t_worker *worker, t_icmp_response_packet *packet, t_scan_datas *scan_datas)
+static void handle_null_scan_icmp(t_icmp_response_packet *packet, t_scan_datas *scan_datas)
 {
-	printf("received null icmp\n");
+	//printf("received null icmp\n");
 	if (packet->icmp_hdr.type == 3 && (packet->icmp_hdr.code == 1 || packet->icmp_hdr.code == 2 || packet->icmp_hdr.code == 3 || packet->icmp_hdr.code == 9 || packet->icmp_hdr.code == 10 || packet->icmp_hdr.code == 13))
 	{
 		scan_datas->state = STATE_FILTERED;
@@ -85,19 +85,19 @@ static void handle_null_scan_icmp(t_worker *worker, t_icmp_response_packet *pack
 	}
 }
 
-static void handle_ack_scan_tcp(t_worker *worker, t_tcp_packet *packet, t_scan_datas *scan_datas)
+static void handle_ack_scan_tcp(t_tcp_packet *packet, t_scan_datas *scan_datas)
 {
 	if (packet->tcp_hdr.rst == 1)
 	{
 		scan_datas->state = STATE_UNFILTERED;
 	}
 	scan_datas->finished = 1;
-	printf("received ack\n");
+	//printf("received ack\n");
 }
 
-static void handle_ack_scan_icmp(t_worker *worker, t_icmp_response_packet *packet, t_scan_datas *scan_datas)
+static void handle_ack_scan_icmp(t_icmp_response_packet *packet, t_scan_datas *scan_datas)
 {
-	printf("received ack icmp\n");
+	//printf("received ack icmp\n");
 	if (packet->icmp_hdr.type == 3 && (packet->icmp_hdr.code == 1 || packet->icmp_hdr.code == 2 || packet->icmp_hdr.code == 3 || packet->icmp_hdr.code == 9 || packet->icmp_hdr.code == 10 || packet->icmp_hdr.code == 13))
 	{
 		scan_datas->state = STATE_FILTERED;
@@ -105,19 +105,19 @@ static void handle_ack_scan_icmp(t_worker *worker, t_icmp_response_packet *packe
 	}
 }
 
-static void handle_fin_scan_tcp(t_worker *worker, t_tcp_packet *packet, t_scan_datas *scan_datas)
+static void handle_fin_scan_tcp(t_tcp_packet *packet, t_scan_datas *scan_datas)
 {
 	if (packet->tcp_hdr.rst == 1 && packet->tcp_hdr.ack == 1)
 	{
-		printf("received fin\n");
+		//printf("received fin\n");
 		scan_datas->state = STATE_CLOSED;
 	}
 	scan_datas->finished = 1;
 }
 
-static void handle_fin_scan_icmp(t_worker *worker, t_icmp_response_packet *packet, t_scan_datas *scan_datas)
+static void handle_fin_scan_icmp(t_icmp_response_packet *packet, t_scan_datas *scan_datas)
 {
-	printf("received fin icmp\n");
+	//printf("received fin icmp\n");
 	if (packet->icmp_hdr.type == 3 && (packet->icmp_hdr.code == 1 || packet->icmp_hdr.code == 2 || packet->icmp_hdr.code == 3 || packet->icmp_hdr.code == 9 || packet->icmp_hdr.code == 10 || packet->icmp_hdr.code == 13))
 	{
 		scan_datas->state = STATE_FILTERED;
@@ -125,19 +125,19 @@ static void handle_fin_scan_icmp(t_worker *worker, t_icmp_response_packet *packe
 	}
 }
 
-static void handle_xmas_scan_tcp(t_worker *worker, t_tcp_packet *packet, t_scan_datas *scan_datas)
+static void handle_xmas_scan_tcp(t_tcp_packet *packet, t_scan_datas *scan_datas)
 {
 	if (packet->tcp_hdr.rst == 1 && packet->tcp_hdr.ack == 1)
 	{
-		printf("received xmas\n");
+		//printf("received xmas\n");
 		scan_datas->state = STATE_CLOSED;
 	}
 	scan_datas->finished = 1;
 }
 
-static void handle_xmas_scan_icmp(t_worker *worker, t_icmp_response_packet *packet, t_scan_datas *scan_datas)
+static void handle_xmas_scan_icmp(t_icmp_response_packet *packet, t_scan_datas *scan_datas)
 {
-	printf("received xmas icmp\n");
+	//printf("received xmas icmp\n");
 	if (packet->icmp_hdr.type == 3 && (packet->icmp_hdr.code == 1 || packet->icmp_hdr.code == 2 || packet->icmp_hdr.code == 3 || packet->icmp_hdr.code == 9 || packet->icmp_hdr.code == 10 || packet->icmp_hdr.code == 13))
 	{
 		scan_datas->state = STATE_FILTERED;
@@ -145,9 +145,9 @@ static void handle_xmas_scan_icmp(t_worker *worker, t_icmp_response_packet *pack
 	}
 }
 
-static void handle_udp_scan_icmp(t_worker *worker, t_icmp_response_packet *packet, t_scan_datas *scan_datas)
+static void handle_udp_scan_icmp(t_icmp_response_packet *packet, t_scan_datas *scan_datas)
 {
-	printf("received udp icmp\n");
+	//printf("received udp icmp\n");
 	if (packet->icmp_hdr.type == 3 && packet->icmp_hdr.code == 3)
 	{
 		scan_datas->state = STATE_CLOSED;
@@ -160,6 +160,14 @@ static void handle_udp_scan_icmp(t_worker *worker, t_icmp_response_packet *packe
 	}
 }
 
+static void handle_udp_scan_udp(t_udp_packet *packet, t_scan_datas *scan_datas)
+{
+	(void)packet;
+	//printf("received udp udp\n");
+	scan_datas->state = STATE_OPENED;
+	scan_datas->finished = 1;
+}
+
 static void handle_tcp_packet(t_tcp_packet *packet, t_worker *worker)
 {
 	for (uint16_t i = 0; i < worker->env->ports_per_thread && worker->ports_result[i].port <= worker->env->params.max_port; ++i)
@@ -169,15 +177,15 @@ static void handle_tcp_packet(t_tcp_packet *packet, t_worker *worker)
 		for (uint8_t j = 0; j < worker->env->number_diff_scans; ++j)
 		{
 			if (worker->ports_result[i].scans[j].type == SCAN_SYN && ntohs(packet->tcp_hdr.dest) == SYN_PORT)
-				handle_syn_scan_tcp(worker, packet, &worker->ports_result[i].scans[j]);
+				handle_syn_scan_tcp(packet, &worker->ports_result[i].scans[j]);
 			else if (worker->ports_result[i].scans[j].type == SCAN_NULL && ntohs(packet->tcp_hdr.dest) == NULL_PORT)
-				handle_null_scan_tcp(worker, packet, &worker->ports_result[i].scans[j]);
+				handle_null_scan_tcp(packet, &worker->ports_result[i].scans[j]);
 			else if (worker->ports_result[i].scans[j].type == SCAN_ACK && ntohs(packet->tcp_hdr.dest) == ACK_PORT)
-				handle_ack_scan_tcp(worker, packet, &worker->ports_result[i].scans[j]);
+				handle_ack_scan_tcp(packet, &worker->ports_result[i].scans[j]);
 			else if (worker->ports_result[i].scans[j].type == SCAN_FIN && ntohs(packet->tcp_hdr.dest) == FIN_PORT)
-				handle_fin_scan_tcp(worker, packet, &worker->ports_result[i].scans[j]);
+				handle_fin_scan_tcp(packet, &worker->ports_result[i].scans[j]);
 			else if (worker->ports_result[i].scans[j].type == SCAN_XMAS && ntohs(packet->tcp_hdr.dest) == XMAS_PORT)
-				handle_xmas_scan_tcp(worker, packet, &worker->ports_result[i].scans[j]);
+				handle_xmas_scan_tcp(packet, &worker->ports_result[i].scans[j]);
 		}
 	}
 }
@@ -191,17 +199,31 @@ static void handle_icmp_packet(t_icmp_response_packet *packet, t_worker *worker)
 		for (uint8_t j = 0; j < worker->env->number_diff_scans; ++j)
 		{
 			if (worker->ports_result[i].scans[j].type == SCAN_SYN && ntohs(packet->udp_hdr.source) == SYN_PORT)
-				handle_syn_scan_icmp(worker, packet, &worker->ports_result[i].scans[j]);
+				handle_syn_scan_icmp(packet, &worker->ports_result[i].scans[j]);
 			else if (worker->ports_result[i].scans[j].type == SCAN_NULL && ntohs(packet->udp_hdr.source) == NULL_PORT)
-				handle_null_scan_icmp(worker, packet, &worker->ports_result[i].scans[j]);
+				handle_null_scan_icmp(packet, &worker->ports_result[i].scans[j]);
 			else if (worker->ports_result[i].scans[j].type == SCAN_ACK && ntohs(packet->udp_hdr.source) == ACK_PORT)
-				handle_ack_scan_icmp(worker, packet, &worker->ports_result[i].scans[j]);
+				handle_ack_scan_icmp(packet, &worker->ports_result[i].scans[j]);
 			else if (worker->ports_result[i].scans[j].type == SCAN_FIN && ntohs(packet->udp_hdr.source) == FIN_PORT)
-				handle_fin_scan_icmp(worker, packet, &worker->ports_result[i].scans[j]);
+				handle_fin_scan_icmp(packet, &worker->ports_result[i].scans[j]);
 			else if (worker->ports_result[i].scans[j].type == SCAN_XMAS && ntohs(packet->udp_hdr.source) == XMAS_PORT)
-				handle_xmas_scan_icmp(worker, packet, &worker->ports_result[i].scans[j]);
+				handle_xmas_scan_icmp(packet, &worker->ports_result[i].scans[j]);
 			else if (worker->ports_result[i].scans[j].type == SCAN_UDP && ntohs(packet->udp_hdr.source) == UDP_PORT)
-				handle_udp_scan_icmp(worker, packet, &worker->ports_result[i].scans[j]);
+				handle_udp_scan_icmp(packet, &worker->ports_result[i].scans[j]);
+		}
+	}
+}
+
+static void handle_udp_packet(t_udp_packet *packet, t_worker *worker)
+{
+	for (uint16_t i = 0; i < worker->env->ports_per_thread && worker->ports_result[i].port <= worker->env->params.max_port; ++i)
+	{
+		if (worker->ports_result[i].port != ntohs(packet->udp_hdr.dest))
+			continue;
+		for (uint8_t j = 0; j < worker->env->number_diff_scans; ++j)
+		{
+			if (worker->ports_result[i].scans[j].type == SCAN_UDP && ntohs(packet->udp_hdr.source) == UDP_PORT)
+				handle_udp_scan_udp(packet, &worker->ports_result[i].scans[j]);
 		}
 	}
 }
@@ -225,7 +247,9 @@ static void receive_tcp_packet(t_worker *worker)
 	}
 	if ((uint32_t)received < sizeof(packet))
 		return;
-	printf("received %d tcp | syn %d, ack %d, fin %d, rst %d, seq %d, ack_seq %d, dst %d, src %d\n", received, packet.tcp_hdr.syn, packet.tcp_hdr.ack, packet.tcp_hdr.fin, packet.tcp_hdr.rst, ntohs(packet.tcp_hdr.seq), ntohs(packet.tcp_hdr.ack_seq), ntohs(packet.tcp_hdr.dest), ntohs(packet.tcp_hdr.source));
+	if (packet.ip_hdr.ip_src.s_addr != worker->env->dst_bin->s_addr)
+		return;
+	//printf("received %d tcp | syn %d, ack %d, fin %d, rst %d, seq %d, ack_seq %d, dst %d, src %d\n", received, packet.tcp_hdr.syn, packet.tcp_hdr.ack, packet.tcp_hdr.fin, packet.tcp_hdr.rst, ntohs(packet.tcp_hdr.seq), ntohs(packet.tcp_hdr.ack_seq), ntohs(packet.tcp_hdr.dest), ntohs(packet.tcp_hdr.source));
 	handle_tcp_packet(&packet, worker);
 }
 
@@ -248,14 +272,42 @@ static void receive_icmp_packet(t_worker *worker)
 	}
 	if ((uint32_t)received < sizeof(packet))
 		return;
-	printf("received %d icmp | src %d, dst %d \n", received, ntohs(packet.udp_hdr.source), ntohs(packet.udp_hdr.dest));
+	if (packet.ip_hdr.ip_src.s_addr != worker->env->dst_bin->s_addr)
+		return;
+	//printf("received %d icmp | src %d, dst %d \n", received, ntohs(packet.udp_hdr.source), ntohs(packet.udp_hdr.dest));
 	handle_icmp_packet(&packet, worker);
+}
+
+static void receive_udp_packet(t_worker *worker)
+{
+	t_udp_packet packet;
+	int received;
+
+	FD_ZERO(&worker->read_set_udp);
+	FD_SET(worker->udp_socket, &worker->read_set_udp);
+	select(worker->udp_socket + 1, &worker->read_set_udp, NULL, NULL, &worker->select_timeout);
+	int set = FD_ISSET(worker->udp_socket, &worker->read_set_udp);
+	if (!set)
+		return;
+	if ((received = recvfrom(worker->udp_socket, &packet, sizeof(packet), 0, NULL, NULL)) <= 0)
+	{
+		if (!received)
+			return;
+		ft_exit("Error, could not receive tcp packet", EXIT_FAILURE);
+	}
+	if ((uint32_t)received < sizeof(packet))
+		return;
+	if (packet.ip_hdr.ip_src.s_addr != worker->env->dst_bin->s_addr)
+		return;
+	//printf("received %d udp | src %d, dst %d \n", received, ntohs(packet.udp_hdr.source), ntohs(packet.udp_hdr.dest));
+	handle_udp_packet(&packet, worker);
 }
 
 static void receive_packets(t_worker *worker)
 {
 	receive_tcp_packet(worker);
 	receive_icmp_packet(worker);
+	receive_udp_packet(worker);
 }
 
 static void check_ports_finished(t_worker *worker)
@@ -288,7 +340,7 @@ static void *thread_run(void *ptr)
 		receive_packets(worker);
 		check_ports_finished(worker);
 	}
-	printf("THREAD FINISHED\n");
+	//printf("THREAD FINISHED\n");
 	return NULL;
 }
 
@@ -319,7 +371,7 @@ void create_threads(t_env *env)
 			}
 			env->threads[i].ports_result[j].port = env->params.min_port + env->ports_per_thread * i + j;
 			env->threads[i].ports_result[j].finished = 0;
-			printf("port %d\n", env->threads[i].ports_result[j].port);
+			//printf("port %d\n", env->threads[i].ports_result[j].port);
 		}
 		env->threads[i].start_port = env->params.min_port + env->ports_per_thread * i;
 		env->threads[i].end_port = env->params.min_port + env->ports_per_thread * (i + i);

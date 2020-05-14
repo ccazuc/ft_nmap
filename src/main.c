@@ -12,23 +12,23 @@ static t_env *create_env(void)
 	env->params.protocol = IPPROTO_ICMP;
 	env->params.af = AF_INET;
 	env->params.parsed_payload_size = 0;
-	env->params.min_port = 53;
-	env->params.max_port = 53;
+	env->params.min_port = 1;
+	env->params.max_port = 1024;
 	env->params.num_threads = 1;
-	env->params.scan_timeout = 1000;
+	env->params.scan_timeout = 300;
 	env->params.scan_max_retry = 5;
 	env->params.host_port = 54351;
+	env->params.parsed_scan = 0;
 	env->dst_param = NULL;
 	env->dst_bin = NULL;
 	env->dst_name = NULL;
 	env->dst_subname = NULL;
 	env->dst_sockaddr = NULL;
 	env->dst_sockaddrlen = 0;
-	env->count = 0;
 	env->running = 1;
-	env->number_diff_scans = 1;
+	env->number_diff_scans = 6;
 	ft_memset(env->scan_list, 0, sizeof(env->scan_list));
-	env->scan_list[0] = SCAN_UDP;
+	env->scan_list[0] = SCAN_SYN;
 	env->scan_list[1] = SCAN_NULL;
 	env->scan_list[2] = SCAN_ACK;
 	env->scan_list[3] = SCAN_FIN;
@@ -42,20 +42,17 @@ int main(int argc, char **argv)
 	t_env *env;
 	if (argc == 1)
 		print_usage(EXIT_FAILURE);
-	//if (getuid())
-	//	ft_exit("tmp", EXIT_FAILURE);
+	if (getuid())
+		ft_exit("Error, nmap requires root privileges.", EXIT_FAILURE);
 	env = create_env();
 	parse_args(env, argc, argv);
+	if (!env->dst_param)
+		print_usage(EXIT_FAILURE);
 	resolve_host(env);
 	get_local_ip(env);
 	print_configuration(env);
 	env->start_time = get_time();
 	create_threads(env);
-	/*parse_args(env, argc, argv);
-	if (!env->dst_param)
-		print_usage(EXIT_FAILURE);
-	resolve_host(env);
-	create_threads(env);*/
 	while (env->running)
 	{
 		env->running = 0;
@@ -64,7 +61,7 @@ int main(int argc, char **argv)
 			if (env->threads[i].running)
 			{
 				env->running = 1;
-				sleep(1);
+				usleep(10000);
 				break;
 			}
 		}

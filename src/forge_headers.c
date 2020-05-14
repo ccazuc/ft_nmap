@@ -1,6 +1,6 @@
 #include "ft_nmap.h"
 
-void forge_tcp_hdr(struct tcphdr *tcp_hdr, t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas)
+void forge_tcp_hdr(struct tcphdr *tcp_hdr, t_worker *worker, t_port_result *port_result)
 {
 	ft_memset(tcp_hdr, 0, sizeof(*tcp_hdr));
 	tcp_hdr->source = htons(worker->env->params.host_port);
@@ -19,7 +19,7 @@ void forge_tcp_hdr(struct tcphdr *tcp_hdr, t_worker *worker, t_port_result *port
 	tcp_hdr->window = htons(128);
 }
 
-void forge_udp_hdr(struct udphdr *udp_hdr, t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas)
+void forge_udp_hdr(struct udphdr *udp_hdr, t_worker *worker, t_port_result *port_result)
 {
 	ft_memset(udp_hdr, 0, sizeof(*udp_hdr));
 	udp_hdr->source = htons(worker->env->params.host_port);
@@ -60,7 +60,7 @@ static uint16_t compute_checksum(char *datas, int32_t len)
 	return ~sum;
 }
 
-uint16_t build_tcp_checksum(t_tcp_packet *tcp_packet, t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas)
+uint16_t build_tcp_checksum(t_tcp_packet *tcp_packet, t_worker *worker)
 {
 	t_tcp_pseudo_hdr pseudo_hdr;
 	char *checksum_datas;
@@ -77,7 +77,7 @@ uint16_t build_tcp_checksum(t_tcp_packet *tcp_packet, t_worker *worker, t_port_r
 	return compute_checksum(checksum_datas, sizeof(pseudo_hdr) + sizeof(tcp_packet->tcp_hdr) + worker->env->params.payload_size);
 }
 
-uint16_t build_udp_checksum(t_udp_packet *udp_packet, t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas)
+uint16_t build_udp_checksum(t_udp_packet *udp_packet, t_worker *worker)
 {
 	t_udp_pseudo_hdr pseudo_hdr;
 	char *checksum_datas;
@@ -94,16 +94,16 @@ uint16_t build_udp_checksum(t_udp_packet *udp_packet, t_worker *worker, t_port_r
 	return compute_checksum(checksum_datas, sizeof(pseudo_hdr) + sizeof(udp_packet->udp_hdr) + worker->env->params.payload_size);
 }
 
-void build_tcp_packet(t_tcp_packet *tcp_packet, t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas)
+void build_tcp_packet(t_tcp_packet *tcp_packet, t_worker *worker, t_port_result *port_result)
 {
 	forge_ip_hdr(&tcp_packet->ip_hdr, worker);
-	forge_tcp_hdr(&tcp_packet->tcp_hdr, worker, port_result, scan_datas);
+	forge_tcp_hdr(&tcp_packet->tcp_hdr, worker, port_result);
 	tcp_packet->ip_hdr.ip_p = IPPROTO_TCP;
 }
 
-void build_udp_packet(t_udp_packet *udp_packet, t_worker *worker, t_port_result *port_result, t_scan_datas *scan_datas)
+void build_udp_packet(t_udp_packet *udp_packet, t_worker *worker, t_port_result *port_result)
 {
 	forge_ip_hdr(&udp_packet->ip_hdr, worker);
-	forge_udp_hdr(&udp_packet->udp_hdr, worker, port_result, scan_datas);
+	forge_udp_hdr(&udp_packet->udp_hdr, worker, port_result);
 	udp_packet->ip_hdr.ip_p = IPPROTO_UDP;
 }
